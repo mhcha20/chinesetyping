@@ -95,10 +95,11 @@ const RAD={Q:"手",W:"田",E:"水",R:"口",T:"廿",Y:"卜",U:"山",I:"戈",O:"�
 const GROUP={A:1,B:1,C:1,D:1,E:1,F:1,G:1, H:2,I:2,J:2,K:2,L:2,M:2,N:2, O:3,P:3,Q:3,R:3, S:4,T:4,U:4,V:4,W:4,Y:4, X:0,Z:0};
 const ROWS=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];
 // 字 → 倉頡碼（速成 = 第一碼 + 最後一碼）
-const CHARS={明:"AB",林:"DD",好:"VND",你:"ONF",他:"OPD",我:"HQI",國:"WIRM",字:"JND",
- 休:"OD",吉:"GR",回:"WR",品:"RRR",昌:"AA",朋:"BB",炎:"FF",本:"DM",天:"MK",地:"GPD",
- 河:"EMNR",想:"DBP",看:"HQBU",學:"HBND",是:"AMYO",的:"HAPI",文:"YK",時:"AGDI",
- 香:"HDA",港:"ETCU",打:"QMN",成:"IHS"};
+// 常用 1200 字（按頻率排序）＋倉頡五代碼；資料來源見 README
+const ALL="的HAPI,了NN,我HQI,是AMYO,在KLG,你ONF,和HDR,有KB,不MF,就YFIKU,都JANL,也PD,要MWV,吧RAU,好VND,他OPD,說YRCRU,去GI,到MGLN,沒ENE,還YWLV,上YM,對TGDI,那SQNL,個OWJR,看HQBU,呢RSP,來DOO,嗎RSQF,爲BHNF,係OHVF,會OMWA,她VPD,與HXYC,唔RMMR,給VFOMR,等HGDI,這YYMR,嘅RAIU,用BQ,把QAU,下MY,咗RKM,恩WKP,能IBPP,很HOAV,冇KB,多NINI,做OJRK,想DUP,喺ROHF,點WFYR,被LDHE,地GPD,佢OSS,而MBLL,後HOVIE,又NK,哋RGPD,從HOOOO,再MGB,將VMBDI,咁RTM,時AGDI,但OAM,過YBBR,嘢RWGN,打QMN,年OQ,麼ICVI,啲RHAI,啦RQYT,以VIO,買WLBUC,嚟RHHE,讓YRYRV,嗯RWKP,着TQBU,乜PN,小NC,得HOAMI,先HGHU,咩RTQ,啊RNLR,或IRM,呀RMVH,嘥RHOO,找QI,新YDHML,及NHE,畀WML,跟RMAV,於YSOY,太KI,攞QWLG,嘛RIDD,號RSYPN,才DH,諗YROIP,可MNR,比PP,玩MGMMU,搵QWOT,們OAN,最ASJE,真JBMC,睇BUCNH,發NONHE,喫RQHK,並TTC,掂QIYR,它JP,其TMMC,話YRHJR,靚QBBUU,請YRQMB,錢CII,叫RVL,開ANMT,出UU,誰YROG,哈ROMR,當FBRW,向HBR,家JMSO,問ANR,之INO,更MLWK,該YRYVO,走GYO,快PDK,別RSLN,前TBLN,由LW,高YRBR,您OFP,裏YWGV,加KSR,所HSHML,天MK,卻CRSL,已SU,里WG,內OB,寫JHXF,啥ROMR,老JKP,搞QYRB,行HOMMN,事JLLN,拿ORQ,帶KPBLB,如VR,死MNP,賣GWLC,暈ABJJ,像ONAO,使OJLK,剛BULN,成IHS,無OTF,換QNBK,只RC,哪RSQL,愛BBPE,回WR,聽SGJWP,少FH,元MMU,卡YMY,靠HGRLY,幫GIHAB,算HBUT,者JKA,忙PYV,起GORU,各HER,學HBND,分CSH,咯RHER,總VFHWP,則BCLN,張NSMV,改SUOK,唉RIOK,三MMM,見BUHU,連YJWJ,車JWJ,放YSOK,全OMG,按QJV,區SRRR,萬TWLB,機DVII,早AJ,拉QYT,弄MGT,本DM,偶OWLB,頁MBUC,進YOG,性PHQM,第HNLH,完JMMU,同BMR,花TOP,長SMV,怕PHA,講YRTTB,殺KCHNE,組VFBM,錯CTA,些YPMM,住OYG,名NIR,跑RMPRU,次IMNO,網VFBTV,睡BUHJM,裝VGYHV,哦RHQI,挺QNKG,王MG,圖WRJW,掉QYAJ,路RMHER,正MYLM,外NIY,二MM,頭MTMBC,應IOGP,生HQM,因WK,子ND,強NILI,類FKMBC,作OOS,送YTK,書LGA,每OWYI,法EGI,乖HJLP,拍QHA,市YLB,撒QTBK,至MIG,接QYTV,美TGK,表QMV,未JD,辦YJKSJ,非LMSY,級VFNHE,即AISL,哎RTK,此YMP,差TQM,版LLHE,併OTT,副MWLN,系HVIF,收VLOK,男WKS,俺OKLU,字JND,兩MLBO,股BHNE,轉JJJII,便OMLK,考JKMVS,塊GHUI,線VFHAE,黃TMLC,道YTHU,米FD,座IOOG,豬MOJKA,聊SJHHL,取SJE,低OHPM,難TOOG,哇RGG,兒HXHU,受BBE,包PRU,阿NLMNR,喝RAPV,白HA,四WC,近YHML,管HJRR,定JMYO,傳OJII,門AN,樣DTGE,夠NNPR,交YCK,李DND,笑HHK,自HBU,邊YHUS,型MNG,黑WGF,慢PAWE,刷SBLN,穿JCMVH,越GOIV,位OYT,貴LMBUC,部YRNL,稱HDBGB,處YPHEN,選YRUC,站YTYR,牛HQ,怪PEG,省FHBU,倒OMGN,談YRFF,曾CWA,羣SRTQ,經VFMVM,數LVOK,據QYPO,變VFOK,累WVIF,汗EMJ,查DAM,象NAPO,半FQ,陳NLDW,紅VFM,格DHER,五MDM,幹JJOMJ,樓DLLV,方YHS,讀YRGWC,頂MNMBC,某TMD,條OLHD,亂BBU,馬SQSF,遠YGRV,單RRWJ,海EOWY,相DBU,熱GIF,光FMU,風HNHLI,咋ROS,且BM,林DD,滿ETLB,額JRMBC,化OP,班MGILG,滴EYCB,掛QGGY,關ANVIT,漲ENSV,店IYR,安JV,坐OOG,約VFPI,劉HCLN,飛NOHTO,度ITE,種HDHJG,俄OHQI,歌MRNO,報GJSLE,信OYMR,若TKR,原MHAF,文YK,飯OIHE,晚ANAU,量AMWG,村DDI,式IPM,空JCM,賺BCTXC,毛HQU,重HJWG,主YG,另RKS,間ANA,裡LWG,貼BCYR,入OH,伐OI,血HBT,盤HEBT,爽KKKK,隊NLTPO,楊DAMH,往HOYG,臺GRBG,片LLML,國WIRM,狗KHPR,歲YMIHH,費LNBUC,壞GYWV,龍YBYSP,離YBOG,共TC,西MCW,佔OYR,周BGR,超GOSHR,明AB,媽VSQF,均GPIM,期TCB,達YGTQ,照ARF,切PSH,留HHW,動HGKS,特HQGDI,氣ONFD,神IFLWL,鳥HAYF,畫LGWM,夢TWLN,教JDOK,哥MRNR,甘TM,蠻VFLMI,魚NWF,值OJBM,鎮CJBC,么HI,罵WLSQF,陪NLYTR,既AIMVU,哭RRIK,力KS,建NKLQ,洗EHGU,懂PTHG,雙OGE,指QPA,東DW,球MGIJE,仍ONHS,活EHJR,跌RMHQO,練VFDWF,億OYTP,清EQMB,提QAMO,除NLOMD,通YNIB,酒EMCW,貓BHTW,餓OIHQI,票MWMMF,六YC,病KMOB,假ORSE,久NO,段HJHNE,平MFJ,抓QHLO,套KSMI,課YRWD,急NMP,藥TVID,城GIHS,任OHG,草TAJ,羅WLVFG,理MGWG,令OINI,雨MLBY,貨OPBUC,唱RAA,左KM,藍TSIT,縣BFHVF,常FBRLB,色NAU,搶QOIR,菜TBD,喲RVFI,集OGD,感IRP,較JJYCK,房HSYHS,混EAPP,敢MJOK,臉BOMO,操QRRD,南JBTJ,退YAV,件OHQ,吳RVNK,破MRDHE,聲GESJ,德HOJWP,局SSR,雪MBSM,噢RHBK,雲MBMMI,傻OHCE,整DKMYM,華TMTJ,克JRHU,呃RMSU,喊RIHR,現MGBUU,跳RMLMO,養TOIAV,補LIJB,團WJII,沈ELBU,反HE,樂VID,篇HHSB,待HOGDI,砸MRSLB,深EBCD,煩FMBC,根DAV,求IJE,投QHNE,電MBWU,親YDBUU,惡MMP,葉TPTD,款GFNO,知OKR,八HO,配MWSU,器RRIKR,何OMNR,率YIOJ,調YRBGR,鬼HUI,修OLHH,試YRIPM,謝YRHHI,僅OTLM,層SCWA,麪JEMLS,面MWSL,週YBGR,北LMP,份OCSH,記YRSU,趙GOFB,情PQMB,肉OBO,需MBMBL,七JU,論YROMB,流EYIU,噶RTAV,招QSHR,痛KNIB,列MNLN,石MR,香HDA,封GGDI,眼BUAV,易APHH,冷IMOII,借OTA,派EHHV,帥HRLB,付ODI,廠IFBK,陽NLAMH,樹DGTI,油ELW,胡JRB,排QLMY,停OYRN,合OMR,軍BJWJ,身HXH,奧HBK,章YTAJ,科HDYJ,倆OMLB,星AHQM,權DTRG,牌LLHWJ,翻HWSMM,隨NLYKB,場GAMH,帖LBYR,商YCBR,庫IJWJ,價OMWC,物HQPHH,泡EPRU,寶JMUC,玉MGI,體BBTWT,追YHRR,傷OOAH,背LPB,腳BCRL,丟MGI,劍OOLN,解NBSHQ,室JMIG,底IHPM,業TCTD,代OIP,孫NDHVF,朱HJD,亦YLNC,須HHMBC,舊TOGX,乾JJON,工MLM,咱RHBU,詞YRSMR,刀SH,喔RSMG,波EDHE,證YRNOT,鐵CJIG,推QOG,落TEHR,節HAIL,輕JJMVM,春QKA,笨HDM,九KN,輸JJOMN,江EM,短OKMRT,含OINR,千HJ,炒FFH,藉TQDA,丫CL,徐HOOMD,騙SFHSB,秒HDFH,青QMB,耍MBV,夜YONK,許YROJ,吹RNO,師HRMLB,板DHE,贏YNBUC,姐VBM,直JBMM,公CI,秀HDNHS,苦TJR,博JIBI,皮DHE,朝JJB,君SKR,詩YRGDI,爛FANW,靜QBBSD,利HDLN,立YT,素QMVIF,存KLND,燒FGGU,斷VIHML,吾MMR,虧YGMMS,湯EAMH,民RVP,極DMEM,命OMRL,忘YVP,茶TOD,冰IME,供OTC,案JVD,初LSH,品RRR,抽QLW,造YHGR,抱QPRU,野WGNIN,綠VFVNE,項MMBC,獎VIIK,胖BFQ,緊SEVIF,故JROK,服BSLE,盡LMFBT,百MA,兵OMC,英TLBK,蘇TNFD,般HYHNE,演EJMC,嘴RYPB,簽HOMO,填GJBC,果WD,保ORD,唐ILR,雞BKOG,夏MUHE,莫TAK,硬MRMLK,寒JTCY,挖QJCN,凡HNI,髮SHIKE,言YMMR,題AOMBC,街HOGGN,防NLYHS,距RMSS,挑QLMO,純VFPU,鬧LNYLB,欲CRNO,竟YTAHU,源EMHF,官JRLR,戲YTI,寄JKMR,古JR,首THBU,思WP,橋DHKB,燈FNOT,郭YDNL,亮YRBN,屬SEWI,干MJ,窮JCHHN,粉FDCSH,爆FATE,韓JJDMQ,刪BTLN,戴JIWTC,然BKF,衝HOHGN,疼KHEY,雷MBW,蓋TGIT,港ETCU,租HDBM,狼KHIAV,蘭TANW,狂KHMG,布KLB,引NL,壓MKG,亞MLLM,捏QAG,齊YX,隻OGE,賽JTCC,員RBUC,佛OLLN,食OIAV,船HYCR,今OIN,恨PAV,宋JD,銀CAV,猛KHNDT,客JHER,黨FBRWF,雖RIOG,友KE,碼MRSQF,領OIMBC,句PR,戰RJI,斯TCHML,沙EFH,哼RYRN,望YBHG,腿BYAV,沖EL,祝IFRHU,丁MN,園WGRV,鄉VHIIL,牀VMD,鄭TKNL,界WOLL,步YLMH,抗QYHN,河EMNR,缺OUDK,賊BCIJ,尚FBR,似OVIO,羊TQ,福IFMRW,必PH,遭YTWA,煙FMWG,否MFR,端YTUMB,設YRHNE,猜KHQMB,伊OSK,秦QKHD,秋HDF,架KRD,熊IPF,毒QMWYI,持QGDI,廣ITLC,插QHJX,歸HMSMB,折QHML,滾EYCV,靈MBRRO,意YTAP,呆RD,困WD,基TCG,圈WFQU,迷YFD,趕GOAMJ,踢RMAPH,勝BFQS,史LK,甲WL,呵RMNR,搬QHYE,獲KHTOE,紙VFHVP,乃NHS,覺HBBUU,右KR,塔GTOR,準EGJ,拖QOPD,摸QTAK,院NLJMU,慘PIIH,訂YRMN,散TBOK,松DCI,爸CKAU,喜GRTR,語YRMMR,洋ETQ,呈RHG,治EIR,漢ETLO,降NLHEQ,峯UHEJ,富JMRW,姓VHQM,料FDYJ,結VFGR,嘎RMUI,咬RYCK,閃ANO,梅DOWY,戶HS,批QPP,寧JPBN,足RYO,爬HOAU,醒MWAHM,狠KHAV,逛YKHG,精FDQMB,瘋KHNI,瘦KHXE,踩RMBD,槍DOIR,誒YRIOK,軟JJNO,偷OOMN,支JE,杜DG,麗MMBBP,鞋TJGG,咧RMNN,展STV,興HXBC,依OYHV,倍OYTR,康ILE,堂FBRG,救IEOK,觀TGBUU,鍵CNKQ,製HNYHV,餘OIOMD,音YTA,筆HLQ,世PT,著TJKA,仲OL,舞OTNIQ,吖RCL,守JDI,冒ABU,露MBRMR,昇AHT,唄RBUC,榮FFBD,弱NMNIM,影AFHHH,替QOA,州ILIL,逼YMRW,陸NLGCG,曲TW,願MFMBC,牙MVDH,箱HDBU,嚇RGCC,測EBCN,莊TVMG,寬JTBI,遍YHSB,細VFW,狀VMIK,巴AU,閒ANB,武MPYLM,湖EJRB,聯SJVIT,程HDRHG,曬AMMP,柳DHHL,偏OHSB,實JWJC,印HPSL,味RJD,衆HTHHO,鎖CFBC,環MGWLV,零MBOII,紫YPVIF,角NBG,勒TJKS,島HAYU,耶SJNL,熟YIF,孔NDU,寸DI,標DMWF,歐SRNO,厚MAND,答HOMR,社IFG,顧HGMBC,懶PDLC,順LLLC,滅EIHF,運YBJJ,輪JJOMB,兼TXC,溫EWOT,娘VIAV,登NOMRT,悶ANP,微HOUNK,佳OGG,瞭BUKCF,雅MHOG,魔ICHUI,司SMR,拋QKUS,志GP,奇KMNR,編VFHSB,居SJR,瓦MVNI,憑IFP,盛ISBT,奶VNHS,虎YPHN,后HMR,洞EBMR,台IR,形MTHHH,負NBUC,川LLL,檔DFBW,圓WRBC,牆VMGOW,囧WCB,充YIHU,害JQJR,喂RWMV,免NAHU,擬QPKO,景AYRF,穩HDBMP,曹TWA,曉AGGU,煮JAF,良IAV,蛋NOLMI,吐RG,肥BAU,仙OU,宮JRHR,酸MWICE,碰MRTTC,侯ONMK,塞JTCG,脫BCRU,嘍RLLV,勁MMKS,欠NO,創ORLN,擦QJBF,爾MFBK,藏TIMS,皆PPHA,屁SPP,永INE,夫QO,掙QBSD,琴MGOIN,錄CVNE,餵OIWMV,稅HDCRU,宏JKI,例OMNN,砍MRNO,專JIDI,視IFBUU,繼VFVVI,兄RHU,產YKMHM,善TGTR,增GCWA,施YSOPD,淚EHSK,暗AYTA,忍SIP,肯YMB,母WYI,橫DTMC,聖SRHG,遊YYSD,艾TK,致MGOK,宗JMMF,麻IDD,偉ODMQ,怒VEP,扔QNHS,爭BSD,游EYSD,鄧NTNL,嫩VDLK,腰BMWV,淨EBSD,肖FB,罪WLLMY,仔OND,彈NRRJ,丑NG,減EIHR,敏OYOK,義TGHQI,臭HUIK,棒DQKQ,響VLYTA,聞ANSJ,拆QHMY,蔡TBOF,計YRJ,絲VFVIF,校DYCK,氏HVP,糖FDILR,吉GR,押QWL,馮IMSQF,吵RFH,谷COR,麥JOHE,衣YHV,宇JMD,雜YDOG,末DJ,潘EHDW,告HGR,旁YBYHS,耐MBDI,董THJG,榜DYBS,醉MWYOJ,鍾CHJG,妹VJD,鋼CBTU,蔣TVMI,宜JBM,幣FKLB,尼SP,灰KF,評YRMFJ,維VFOG,絕VFSHU,屋SMIG,幾VIHI,楚DDNYO,屆SUG,館OIJRR,丹BY,乘HDLP,認YRSIP,刻YOLN,俊OICE,芳TYHS,酷MWHGR,夾KOO,抄QFH,京YRF,嚴RRMMK,返YHE,廳ISGP,礦MRITC,魯NWFA,瑞MGUMB,仁OMM,添EHKP,註YRYG,飄MFHNI,催OUOG,具BMMC,劇YOLN,威IHMV,核DYVO,農TWMMV,瓶TTMVN,族YSOOK,犯KHSU,銅CBMR,季HDND,尋SMMRI,顯AFMBC,骨BBB,鏈CYJJ,嘿RWGF,擺QWLP,擠QYX,黎HHOE,騎SFKMR,士JM,密JPHU,術HOICN,炸FOS,祇IFHVP,洪ETC,訊YRNJ,禮IFTWT,容JCOR,腦BVVW,輝FUBJJ,射HHDI,智ORA,索JBVIF,聚SEHHO,拼QTT,燕TLPF,撞QYTG,膜BTAK,普TCA,魏HVHUI,澤EWLJ,側OBCN,諾YRTKR,呂RHR,范TESU,搭QTOR,鳳HNMAF,扯QYLM,袁GRHV,鑽CHUC,彭GTHHH,陰NLOII,唸ROIP,涼EYRF,薄TEII,胃WB,鹽SWBT,獨KHWLI,賴DLNBC,窩JCBBR,堆GOG,赴GOY";
+const CHARS={};const POOL=[];
+ALL.split(",").forEach(s=>{CHARS[s[0]]=s.slice(1);POOL.push(s[0])});
+const EASY=POOL.slice(0,200);
 const quick=c=>c[0]+c[c.length-1];
 const rads=c=>[...c].map(k=>RAD[k]).join("＋");
 const LV=[["🥚","打字新手"],["🐣","指法學徒"],["🐥","字根達人"],["🦅","速成高手"],["🐉","打字大師"]];
@@ -108,7 +109,7 @@ const $=s=>document.querySelector(s);
 let S;try{S=JSON.parse(localStorage.getItem("ct-state")||"null")}catch(e){}
 S=S||{xp:0,cur:0,done:{},best:0};
 const save=()=>{try{localStorage.setItem("ct-state",JSON.stringify(S))}catch(e){}};
-const MAXXP=400;
+const MAXXP=500;
 function stats(){
   const lv=Math.min(4,Math.floor(S.xp/(MAXXP/5)));
   $("#level").textContent=`${LV[lv][0]} Lv.${lv+1} ${LV[lv][1]}`;
@@ -243,7 +244,7 @@ const LESSONS=[
   <p>字旁會提示字根，你要打出完整倉頡碼。打啱 8 個字過關！</p></div>
   <div class="card"><div id="kbbox"></div><div id="dbox"></div></div>`;
   $("#kbbox").appendChild(keyboard());
-  const items=shuffle(Object.keys(CHARS));
+  const items=shuffle(EASY);
   startDrill($("#dbox"),{items,goal:8,xp:5,assist:true,
     expect:c=>CHARS[c],prompt:c=>c,sub:c=>`字根提示：${rads(CHARS[c])}`,
     after:c=>`${c} = ${CHARS[c].split("").join(" ")}`,
@@ -260,7 +261,7 @@ const LESSONS=[
   <p>今次只打<b>2 隻鍵</b>，答啱 10 個過關！</p></div>
   <div class="card"><div id="kbbox"></div><div id="dbox"></div></div>`;
   $("#kbbox").appendChild(keyboard());
-  startDrill($("#dbox"),{items:shuffle(Object.keys(CHARS)),goal:10,xp:5,assist:false,
+  startDrill($("#dbox"),{items:shuffle(EASY),goal:10,xp:5,assist:false,
     expect:c=>quick(CHARS[c]),prompt:c=>c,
     sub:c=>`倉頡：${[...CHARS[c]].join(" ")}　→　取頭尾`,
     after:c=>`${c}：${CHARS[c]} → ${quick(CHARS[c])}`,
@@ -275,7 +276,7 @@ const LESSONS=[
   <div class="card"><div id="kbbox"></div><div id="dbox"><div class="stage sub">撳「開始挑戰」，然後打第一個字就開始計時</div></div></div>`;
   $("#kbbox").appendChild(keyboard());
   $("#go").onclick=()=>{
-    const items=shuffle(Object.keys(CHARS));
+    const items=shuffle(EASY);
     startDrill($("#dbox"),{items:[...items,...shuffle(items),...shuffle(items)],seconds:60,xp:3,
       expect:c=>quick(CHARS[c]),prompt:c=>c,sub:c=>"",
       onDone:st=>{
@@ -288,6 +289,32 @@ const LESSONS=[
         if(n>=12)boom(220);else boom(40);
       }});
   };
+ }},
+{emoji:"📚",title:"1200 字庫",
+ render(box){
+  box.innerHTML=`<div class="card"><h2>📚 第 6 課：1200 常用字庫</h2>
+  <p>呢度有 <b>1200 個常用字</b>，按使用頻率排序。先查字，再揀範圍特訓。</p>
+  <div class="row"><input id="q" maxlength="6" placeholder="輸入想查嘅字，例如：香港" style="font:inherit;padding:8px 12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)"></div>
+  <div id="qr" class="sub" style="margin-top:8px"></div></div>
+  <div class="card"><h2>🎯 範圍特訓</h2>
+  <p>揀字庫範圍，用<b>速成（頭尾 2 碼）</b>打，連續答啱 25 個過關。</p>
+  <div class="row" id="rng"></div>
+  <div id="kbbox"></div><div id="dbox"><div class="stage sub">揀一個範圍開始</div></div></div>`;
+  $("#kbbox").appendChild(keyboard());
+  $("#q").oninput=e=>{
+    const t=[...e.target.value];
+    $("#qr").innerHTML=t.length?t.map(c=>{const k=CHARS[c];
+      return k?`<b>${c}</b>　倉頡 ${[...k].join(" ")}（${rads(k)}）　速成 <b>${quick(k)}</b>`
+      :`<b>${c}</b>　不在 1200 字庫內`}).join("<br>"):"";
+  };
+  const ranges=[["1–200 入門",0,200],["201–500",200,500],["501–800",500,800],["801–1200",800,1200],["全部 1200",0,1200]];
+  ranges.forEach(([label,a,b])=>{const e=document.createElement("button");e.className="btn alt";e.textContent=label;
+    e.onclick=()=>startDrill($("#dbox"),{items:shuffle(POOL.slice(a,b)),goal:25,xp:3,assist:false,
+      expect:c=>quick(CHARS[c]),prompt:c=>c,
+      sub:c=>`倉頡：${[...CHARS[c]].join(" ")}　→　取頭尾`,
+      after:c=>`${c}：${CHARS[c]} → ${quick(CHARS[c])}`,
+      onDone:st=>finishLesson(5,st,"字庫特訓完成！")});
+    $("#rng").appendChild(e)});
  }}
 ];
 
