@@ -138,57 +138,86 @@ const legend=`<div class="legend"><span><i style="background:var(--g1)"></i>哲�
 /* ===== 練習引擎 ===== */
 let drill=null;
 function startDrill(box,o){
-  // o: items[], expect(item)->code, prompt(item)->html, sub(item)->html, goal, seconds?, onDone(stat), showAfter?
-  const st={i:0,ok:0,miss:0,buf:"",items:o.items,t0:null,over:false};
-  box.innerHTML=`<div class="stage"><div class="prog"><i id="dp"></i></div>
+  // o: items[], expect(item)->code, prompt(item)->html, sub(item)->html, goal, label,
+  //    assist(顯示鍵位提示), streak(連續答啱 goal 個先過), perItem(每題限時秒), maxMiss(失誤上限),
+  //    seconds(總限時), onDone(st), onFail(st)
+  const st={i:0,ok:0,miss:0,streak:0,buf:"",items:o.items,t0:null,over:false,lock:false};
+  box.innerHTML=`<div class="stage"><div class="sub" id="dl"></div><div class="prog"><i id="dp"></i></div>
     <div class="big" id="dq"></div><div class="sub" id="ds"></div>
     <div class="buf" id="db"></div><div class="msg" id="dm"></div></div>`;
-  const dq=$("#dq"),ds=$("#ds"),db=$("#db"),dm=$("#dm"),dp=$("#dp");
-  let timer=null;
+  const dq=$("#dq"),ds=$("#ds"),db=$("#db"),dm=$("#dm"),dp=$("#dp"),dl=$("#dl");
+  let timer=null,itemTimer=null;
   const cur=()=>st.items[st.i%st.items.length];
+  const head=()=>{dl.textContent=(o.label?o.label+"　":"")+(o.streak?`連續答啱 ${st.streak}/${o.goal}　`:"")+(o.maxMiss?`失誤 ${st.miss}/${o.maxMiss}`:"")};
   function show(){
     const it=cur();dq.innerHTML=o.prompt(it);ds.innerHTML=o.sub?o.sub(it):"";
-    st.buf="";draw();target(o.assist?o.expect(it)[st.buf.length]:"");
-    dp.style.width=(o.seconds?0:st.ok/o.goal*100)+"%";
+    st.buf="";st.lock=false;draw();head();target(o.assist?o.expect(it)[0]:"");
+    clearInterval(itemTimer);
+    if(o.perItem){const end=Date.now()+o.perItem*1000;dp.style.width="100%";
+      itemTimer=setInterval(()=>{const left=end-Date.now();
+        dp.style.width=Math.max(0,left/(o.perItem*1000)*100)+"%";
+        if(left<=0){clearInterval(itemTimer);wrong("⏱ 太慢喇！",true)}},50)}
+    else if(!o.seconds)dp.style.width=(o.streak?st.streak:st.ok)/o.goal*100+"%";
   }
   function draw(){const n=o.expect(cur()).length;
     db.innerHTML="";for(let k=0;k<n;k++){const s=document.createElement("span");
       s.textContent=st.buf[k]?(RAD[st.buf[k]]||st.buf[k])+" "+st.buf[k]:"";db.appendChild(s)}}
-  function finish(){
-    st.over=true;clearInterval(timer);drill=null;target("");
-    o.onDone(st);
+  function stop(){st.over=true;clearInterval(timer);clearInterval(itemTimer);drill=null;target("")}
+  function wrong(msg,timeout){
+    if(st.over||st.lock)return;
+    st.lock=true;clearInterval(itemTimer);
+    st.miss++;st.streak=0;head();
+    const exp=o.expect(cur());
+    dm.className="msg bad";
+    dm.textContent=msg+" 正確係 "+[...exp].map(c=>(RAD[c]||"")+c).join(" ");
+    db.classList.remove("shake");void db.offsetWidth;db.classList.add("shake");
+    if(o.maxMiss&&st.miss>=o.maxMiss){stop();setTimeout(()=>o.onFail&&o.onFail(st),900);return}
+    setTimeout(()=>{if(st.over)return;
+      if(o.perItem||timeout)st.i++;
+      show();if(!o.perItem&&!timeout){target(o.assist?exp[0]:"")}},o.perItem?900:700);
   }
   function key(k){
-    if(st.over)return;
+    if(st.over||st.lock)return;
     if(k==="BACK"){st.buf=st.buf.slice(0,-1);draw();return}
     if(!/^[A-Z]$/.test(k))return;
     if(!st.t0){st.t0=Date.now();
       if(o.seconds){const end=st.t0+o.seconds*1000;
         timer=setInterval(()=>{const left=Math.max(0,Math.ceil((end-Date.now())/1000));
-          dp.style.width=(100-left/o.seconds*100)+"%";ds.dataset.left=left;
+          dp.style.width=(100-left/o.seconds*100)+"%";
           const tl=$("#tleft");if(tl)tl.textContent=left;
-          if(left<=0)finish()},200)}}
+          if(left<=0){stop();o.onDone(st)}},200)}}
     flash(k);const it=cur(),exp=o.expect(it);
     if(st.buf.length>=exp.length)return;
     st.buf+=k;draw();
-    if(!o.assist||true){/* 輔助提示 */}
     if(st.buf.length===exp.length){
       if(st.buf===exp){
-        st.ok++;gain(o.xp||3);dm.className="msg ok";
-        dm.textContent="✔ "+(o.after?o.after(it):"啱！");
-        st.i++;
-        if(!o.seconds&&st.ok>=o.goal){finish();return}
+        st.ok++;st.streak++;gain(o.xp||3);head();clearInterval(itemTimer);
+        dm.className="msg ok";dm.textContent="✔ "+(o.after?o.after(it):"啱！");
+        st.i++;st.lock=true;
+        const done=!o.seconds&&((o.streak?st.streak:st.ok)>=o.goal);
+        if(done){stop();dp.style.width="100%";setTimeout(()=>o.onDone(st),500);return}
         setTimeout(()=>{if(!st.over)show()},o.seconds?120:450);
-      }else{
-        st.miss++;dm.className="msg bad";
-        dm.textContent="✘ 正確係 "+[...exp].map(c=>(RAD[c]||"")+c).join(" ");
-        db.classList.remove("shake");void db.offsetWidth;db.classList.add("shake");
-        setTimeout(()=>{if(!st.over){st.buf="";draw();target(o.assist?exp[0]:"")}},700);
-      }
+      }else wrong("✘",false);
     }else if(o.assist)target(exp[st.buf.length]);
   }
   drill={key};show();
   return st;
+}
+
+/* 階梯式練習：連續答啱先升級，失誤多就降級，最後一級過晒先算掌握 */
+function ladder(box,idx,doneText,stages,mk){
+  let s=0;
+  const banner=(icon,text,cb)=>{box.innerHTML=`<div class="stage"><div class="big">${icon}</div><div class="msg">${text}</div></div>`;setTimeout(cb,1500)};
+  const run=()=>{const g=stages[s];
+    startDrill(box,{...mk(g),goal:g.goal,streak:true,perItem:g.t,maxMiss:g.miss||3,assist:!!g.assist,
+      label:`階段 ${s+1}/${stages.length}：${g.name}`,
+      onDone:st=>{
+        if(s>=stages.length-1)finishLesson(idx,st,doneText);
+        else{s++;boom(50);banner("⬆️",`升級！下一階段：「${stages[s].name}」`,run)}},
+      onFail:()=>{
+        if(s>0){s--;banner("⬇️","失誤太多，退返上一階段再練穩啲",run)}
+        else banner("🔁","失誤太多，再嚟過！",run)}});};
+  run();
 }
 addEventListener("keydown",e=>{
   if(!drill||e.ctrlKey||e.metaKey||e.altKey)return;
@@ -225,14 +254,17 @@ const LESSONS=[
   box.innerHTML=`<div class="card"><h2>🗺️ 第 2 課：24 個字根</h2>
   <p>每隻鍵都有一個字根。分四區，用顏色記：</p>${legend}
   <p>👆 <b>口訣</b>：<b>日月金木水火土</b>（A B C D E F G）係第一排基礎；<b>竹戈十大中一弓</b>（H I J K L M N）係筆劃；<b>人心手口</b>（O P Q R）係人類。</p></div>
-  <div class="card"><h2>🎮 字根練習</h2><p>屏幕出現字根，撳返對應嘅字母鍵。答啱 12 次過關！（可以用實體鍵盤）</p>
+  <div class="card"><h2>🎮 字根練習</h2><p>屏幕出現字根，撳返對應嘅字母鍵。分 4 個階段：連續答啱先升級，錯太多會降級，最後限時 2.5 秒都過到先算掌握！</p>
   <div id="kbbox"></div><div id="dbox"></div></div>`;
   $("#kbbox").appendChild(keyboard());
-  const items=shuffle(Object.keys(RAD).filter(k=>RAD[k]));
-  const items2=[...items,...shuffle(items)];
-  startDrill($("#dbox"),{items:items2,goal:12,xp:3,assist:true,
-    expect:k=>k,prompt:k=>RAD[k],sub:k=>"撳邊隻鍵？（綠色虛線係提示）",
-    onDone:st=>finishLesson(1,st,"字根全部熟晒！")});
+  const rl=Object.keys(RAD).filter(k=>RAD[k]);
+  ladder($("#dbox"),1,"字根全部熟晒！",[
+    {name:"跟住綠色提示撳",goal:6,assist:true,miss:4},
+    {name:"唔再提示",goal:10},
+    {name:"限時 4 秒",goal:12,t:4},
+    {name:"限時 2.5 秒",goal:15,t:2.5}],
+    g=>({items:[...shuffle(rl),...shuffle(rl),...shuffle(rl)],xp:3,
+      expect:k=>k,prompt:k=>RAD[k],sub:k=>g.assist?"撳邊隻鍵？（綠色虛線係提示）":"撳邊隻鍵？"}));
  }},
 {emoji:"🧩",title:"拆字：倉頡碼",
  render(box){
@@ -241,14 +273,17 @@ const LESSONS=[
   <table><tr><th>字</th><th>拆法</th><th>倉頡碼</th></tr>
   <tr><td>明</td><td>日＋月</td><td>AB</td></tr><tr><td>林</td><td>木＋木</td><td>DD</td></tr>
   <tr><td>好</td><td>女＋子(弓＋木)</td><td>VND</td></tr></table>
-  <p>字旁會提示字根，你要打出完整倉頡碼。打啱 8 個字過關！</p></div>
+  <p>你要打出完整倉頡碼。一開始有提示，之後提示逐步消失、字庫同限時逐步增加。<b>連續答啱</b>先可以升級，錯太多會退返上一階段。</p></div>
   <div class="card"><div id="kbbox"></div><div id="dbox"></div></div>`;
   $("#kbbox").appendChild(keyboard());
-  const items=shuffle(EASY);
-  startDrill($("#dbox"),{items,goal:8,xp:5,assist:true,
-    expect:c=>CHARS[c],prompt:c=>c,sub:c=>`字根提示：${rads(CHARS[c])}`,
-    after:c=>`${c} = ${CHARS[c].split("").join(" ")}`,
-    onDone:st=>finishLesson(2,st,"拆字高手！")});
+  ladder($("#dbox"),2,"拆字高手！",[
+    {name:"字根＋鍵位提示（頭 30 字）",goal:5,assist:true,rad:true,pool:[0,30],miss:4},
+    {name:"只有字根提示（頭 60 字）",goal:8,rad:true,pool:[0,60]},
+    {name:"冇提示（頭 120 字，15 秒）",goal:10,pool:[0,120],t:15},
+    {name:"限時 8 秒（200 字）",goal:12,pool:[0,200],t:8}],
+    g=>({items:shuffle(EASY.slice(...g.pool)),xp:5,
+      expect:c=>CHARS[c],prompt:c=>c,sub:c=>g.rad?`字根提示：${rads(CHARS[c])}`:"",
+      after:c=>`${c} = ${CHARS[c].split("").join(" ")}（${rads(CHARS[c])}）`}));
  }},
 {emoji:"⚡",title:"速成：取頭尾",
  render(box){
@@ -258,19 +293,23 @@ const LESSONS=[
   <tr><td>好</td><td>V N D</td><td><b>V D</b></td></tr><tr><td>你</td><td>O N F</td><td><b>O F</b></td></tr>
   <tr><td>國</td><td>W I R M</td><td><b>W M</b></td></tr></table>
   <div class="tip">⚠️ 速成會有「重碼」（唔同字同一個碼），要喺候選字列表用數字鍵揀。呢度練習取頭尾就夠。</div>
-  <p>今次只打<b>2 隻鍵</b>，答啱 10 個過關！</p></div>
+  <p>今次只打<b>2 隻鍵</b>。同樣分 4 個階段：倉頡碼提示會消失，之後要喺 5 秒、3 秒內打出，連續答啱先升級。</p></div>
   <div class="card"><div id="kbbox"></div><div id="dbox"></div></div>`;
   $("#kbbox").appendChild(keyboard());
-  startDrill($("#dbox"),{items:shuffle(EASY),goal:10,xp:5,assist:false,
-    expect:c=>quick(CHARS[c]),prompt:c=>c,
-    sub:c=>`倉頡：${[...CHARS[c]].join(" ")}　→　取頭尾`,
-    after:c=>`${c}：${CHARS[c]} → ${quick(CHARS[c])}`,
-    onDone:st=>finishLesson(3,st,"速成技能解鎖！")});
+  ladder($("#dbox"),3,"速成技能解鎖！",[
+    {name:"顯示倉頡碼，打頭尾（頭 40 字）",goal:6,full:true,pool:[0,40],miss:4},
+    {name:"冇倉頡碼提示（頭 100 字）",goal:10,pool:[0,100]},
+    {name:"限時 5 秒（200 字）",goal:12,pool:[0,200],t:5},
+    {name:"限時 3 秒（200 字）",goal:15,pool:[0,200],t:3}],
+    g=>({items:shuffle(EASY.slice(...g.pool)),xp:5,
+      expect:c=>quick(CHARS[c]),prompt:c=>c,
+      sub:c=>g.full?`倉頡：${[...CHARS[c]].join(" ")}　→　取頭尾`:"",
+      after:c=>`${c}：${CHARS[c]} → ${quick(CHARS[c])}`}));
  }},
 {emoji:"🏁",title:"打字挑戰",
  render(box){
   box.innerHTML=`<div class="card"><h2>🏁 第 5 課：60 秒挑戰</h2>
-  <p>用速成（頭尾 2 碼）盡量打多啲字，無提示！答啱 12 個或以上畢業。</p>
+  <p>用速成（頭尾 2 碼）盡量打多啲字，無提示！畢業要求：<b>最少 18 個字，而且準確率 90% 或以上</b>（亂撳碰運氣唔會過）。</p>
   <p>最佳成績：<b id="best">${S.best}</b> 字　⏱ 剩 <b id="tleft">60</b> 秒</p>
   <div class="row"><button class="btn" id="go">▶ 開始挑戰</button></div></div>
   <div class="card"><div id="kbbox"></div><div id="dbox"><div class="stage sub">撳「開始挑戰」，然後打第一個字就開始計時</div></div></div>`;
@@ -280,13 +319,14 @@ const LESSONS=[
     startDrill($("#dbox"),{items:[...items,...shuffle(items),...shuffle(items)],seconds:60,xp:3,
       expect:c=>quick(CHARS[c]),prompt:c=>c,sub:c=>"",
       onDone:st=>{
-        const n=st.ok;if(n>S.best){S.best=n;save()}
+        const n=st.ok,acc=n+st.miss?Math.round(n/(n+st.miss)*100):0,pass=n>=18&&acc>=90;
+        if(n>S.best){S.best=n;save()}
         $("#best").textContent=S.best;
         $("#dbox").innerHTML=`<div class="stage"><div class="big">${n} 字</div>
-          <div class="sub">每分鐘 ${n} 字，打錯 ${st.miss} 次</div>
-          <div class="msg ${n>=12?"ok":"bad"}">${n>=12?"🎓 畢業！你已經識用速成打字喇！":"再練多次，目標 12 字！"}</div></div>`;
-        if(n>=12&&!S.done[4]){S.done[4]=1;gain(50);nav()}
-        if(n>=12)boom(220);else boom(40);
+          <div class="sub">打錯 ${st.miss} 次，準確率 ${acc}%</div>
+          <div class="msg ${pass?"ok":"bad"}">${pass?"🎓 畢業！你真係識用速成打字喇！":(n<18?"字數未夠，目標 18 字！":"準確率未夠 90%，打慢啲、打準啲！")}</div></div>`;
+        if(pass&&!S.done[4]){S.done[4]=1;gain(50);nav()}
+        boom(pass?220:40);
       }});
   };
  }},
@@ -297,7 +337,7 @@ const LESSONS=[
   <div class="row"><input id="q" maxlength="6" placeholder="輸入想查嘅字，例如：香港" style="font:inherit;padding:8px 12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)"></div>
   <div id="qr" class="sub" style="margin-top:8px"></div></div>
   <div class="card"><h2>🎯 範圍特訓</h2>
-  <p>揀字庫範圍，用<b>速成（頭尾 2 碼）</b>打，連續答啱 25 個過關。</p>
+  <p>揀字庫範圍，用<b>速成（頭尾 2 碼）</b>打。每題限 6 秒，打 25 個字，<b>失誤最多 2 次</b>（第 3 次即失敗）。過晒「全部 1200」先算畢業。</p>
   <div class="row" id="rng"></div>
   <div id="kbbox"></div><div id="dbox"><div class="stage sub">揀一個範圍開始</div></div></div>`;
   $("#kbbox").appendChild(keyboard());
@@ -308,23 +348,26 @@ const LESSONS=[
       :`<b>${c}</b>　不在 1200 字庫內`}).join("<br>"):"";
   };
   const ranges=[["1–200 入門",0,200],["201–500",200,500],["501–800",500,800],["801–1200",800,1200],["全部 1200",0,1200]];
-  ranges.forEach(([label,a,b])=>{const e=document.createElement("button");e.className="btn alt";e.textContent=label;
-    e.onclick=()=>startDrill($("#dbox"),{items:shuffle(POOL.slice(a,b)),goal:25,xp:3,assist:false,
-      expect:c=>quick(CHARS[c]),prompt:c=>c,
-      sub:c=>`倉頡：${[...CHARS[c]].join(" ")}　→　取頭尾`,
+  S.rng=S.rng||{};
+  ranges.forEach(([label,a,b])=>{const e=document.createElement("button");e.className="btn alt";
+    e.textContent=label+(S.rng[label]?" ✅":"");
+    e.onclick=()=>startDrill($("#dbox"),{items:shuffle(POOL.slice(a,b)),goal:25,xp:3,perItem:6,maxMiss:3,
+      label:`範圍：${label}`,expect:c=>quick(CHARS[c]),prompt:c=>c,sub:c=>"",
       after:c=>`${c}：${CHARS[c]} → ${quick(CHARS[c])}`,
-      onDone:st=>finishLesson(5,st,"字庫特訓完成！")});
+      onDone:st=>{S.rng[label]=1;save();finishLesson(5,st,`「${label}」過關！`,label==="全部 1200")},
+      onFail:()=>{$("#dbox").innerHTML=`<div class="stage"><div class="big">🔁</div><div class="msg bad">失誤去到 3 次，今次未過。再練多次！</div></div>`}});
     $("#rng").appendChild(e)});
  }}
 ];
 
-function finishLesson(i,st,txt){
-  if(!S.done[i]){S.done[i]=1;gain(30);nav()}
+function finishLesson(i,st,txt,mark=true){
+  const first=mark&&!S.done[i];
+  if(first){S.done[i]=1;gain(30)}nav();
   boom();
   const b=document.querySelector("#dbox");
   const last=i>=LESSONS.length-1;
   b.innerHTML=`<div class="stage"><div class="big">🎉</div>
-   <div class="msg ok">${txt} 答啱 ${st.ok}，打錯 ${st.miss}。+30 XP</div>
+   <div class="msg ok">${txt} 答啱 ${st.ok}，打錯 ${st.miss}。${first?"+30 XP":""}</div>
    <div class="row" style="justify-content:center"><button class="btn alt" id="again">再練一次</button>
    ${last?"":'<button class="btn" id="nx">下一課 →</button>'}</div></div>`;
   $("#again").onclick=()=>go(i);
