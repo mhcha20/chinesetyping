@@ -45,6 +45,7 @@ code{background:var(--line);padding:1px 6px;border-radius:6px}
 .key b{font-size:clamp(.65rem,2vw,.8rem);opacity:.7;line-height:1}
 .key span{font-size:clamp(1rem,3.4vw,1.5rem);line-height:1.2}
 .key.g1{background:var(--g1)}.key.g2{background:var(--g2)}.key.g3{background:var(--g3)}.key.g4{background:var(--g4)}.key.gx{background:var(--gx)}
+.key.plain{background:var(--card);border-color:var(--line)}.key.plain span{font-size:clamp(1rem,3.6vw,1.6rem);font-weight:700}
 .key.hit{transform:scale(1.15);outline:3px solid var(--pri)}
 .key.target{outline:3px dashed var(--ok);animation:pulse 1s infinite}
 @keyframes pulse{50%{transform:scale(1.1)}}
@@ -120,19 +121,19 @@ const gain=n=>{S.xp+=n;save();stats()};
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 
 /* ===== 鍵盤元件 ===== */
-function keyboard(){
+function keyboard(ref){
   const kb=document.createElement("div");kb.className="kb";
   ROWS.forEach(r=>{const row=document.createElement("div");row.className="kr";
     [...r].forEach(k=>{const e=document.createElement("div");
-      e.className="key g"+(GROUP[k]||"x");if(!GROUP[k])e.className="key gx";
-      e.dataset.k=k;e.innerHTML=`<b>${k}</b><span>${RAD[k]||"　"}</span>`;row.appendChild(e)});
+      e.className=ref?"key g"+(GROUP[k]||"x"):"key plain";if(ref&&!GROUP[k])e.className="key gx";
+      e.dataset.k=k;e.innerHTML=ref?`<b>${k}</b><span>${RAD[k]||"　"}</span>`:`<span>${k}</span>`;row.appendChild(e)});
     kb.appendChild(row)});
   return kb;
 }
-function flash(k){const e=document.querySelector(`.key[data-k="${k}"]`);if(!e)return;
+function flash(k){const e=document.querySelector(`#kbbox .key[data-k="${k}"]`);if(!e)return;
   e.classList.add("hit");setTimeout(()=>e.classList.remove("hit"),150)}
 function target(keys){document.querySelectorAll(".key.target").forEach(e=>e.classList.remove("target"));
-  (keys||"").split("").forEach(k=>{const e=document.querySelector(`.key[data-k="${k}"]`);e&&e.classList.add("target")})}
+  (keys||"").split("").forEach(k=>{const e=document.querySelector(`#kbbox .key[data-k="${k}"]`);e&&e.classList.add("target")})}
 const legend=`<div class="legend"><span><i style="background:var(--g1)"></i>哲理（日月金木水火土）</span><span><i style="background:var(--g2)"></i>筆劃（竹戈十大中一弓）</span><span><i style="background:var(--g3)"></i>人類（人心手口）</span><span><i style="background:var(--g4)"></i>雜類（尸廿山女田卜）</span></div>`;
 
 /* ===== 練習引擎 ===== */
@@ -224,7 +225,7 @@ addEventListener("keydown",e=>{
   if(e.key==="Backspace"){drill.key("BACK");e.preventDefault();return}
   if(/^[a-zA-Z]$/.test(e.key)){drill.key(e.key.toUpperCase());e.preventDefault()}
 });
-document.addEventListener("click",e=>{const k=e.target.closest(".key");
+document.addEventListener("click",e=>{const k=e.target.closest("#kbbox .key");
   if(k&&drill)drill.key(k.dataset.k);else if(k)flash(k.dataset.k)});
 
 /* ===== 課程 ===== */
@@ -252,19 +253,20 @@ const LESSONS=[
 {emoji:"🗺️",title:"認識鍵盤字根",
  render(box){
   box.innerHTML=`<div class="card"><h2>🗺️ 第 2 課：24 個字根</h2>
-  <p>每隻鍵都有一個字根。分四區，用顏色記：</p>${legend}
+  <p>每隻鍵都有一個字根。分四區，用顏色記（呢個係<b>參考圖</b>，下面練習嘅鍵盤只有英文字母）：</p><div id="ref"></div>${legend}
   <p>👆 <b>口訣</b>：<b>日月金木水火土</b>（A B C D E F G）係第一排基礎；<b>竹戈十大中一弓</b>（H I J K L M N）係筆劃；<b>人心手口</b>（O P Q R）係人類。</p></div>
   <div class="card"><h2>🎮 字根練習</h2><p>屏幕出現字根，撳返對應嘅字母鍵。分 4 個階段：連續答啱先升級，錯太多會降級，最後限時 2.5 秒都過到先算掌握！</p>
   <div id="kbbox"></div><div id="dbox"></div></div>`;
+  $("#ref").appendChild(keyboard(true));
   $("#kbbox").appendChild(keyboard());
   const rl=Object.keys(RAD).filter(k=>RAD[k]);
   ladder($("#dbox"),1,"字根全部熟晒！",[
-    {name:"跟住綠色提示撳",goal:6,assist:true,miss:4},
+    {name:"對住上面參考圖撳",goal:6,miss:4},
     {name:"唔再提示",goal:10},
     {name:"限時 4 秒",goal:12,t:4},
     {name:"限時 2.5 秒",goal:15,t:2.5}],
     g=>({items:[...shuffle(rl),...shuffle(rl),...shuffle(rl)],xp:3,
-      expect:k=>k,prompt:k=>RAD[k],sub:k=>g.assist?"撳邊隻鍵？（綠色虛線係提示）":"撳邊隻鍵？"}));
+      expect:k=>k,prompt:k=>RAD[k],sub:k=>"撳邊隻鍵？"}));
  }},
 {emoji:"🧩",title:"拆字：倉頡碼",
  render(box){
@@ -277,7 +279,7 @@ const LESSONS=[
   <div class="card"><div id="kbbox"></div><div id="dbox"></div></div>`;
   $("#kbbox").appendChild(keyboard());
   ladder($("#dbox"),2,"拆字高手！",[
-    {name:"字根＋鍵位提示（頭 30 字）",goal:5,assist:true,rad:true,pool:[0,30],miss:4},
+    {name:"有字根提示（頭 30 字）",goal:5,rad:true,pool:[0,30],miss:4},
     {name:"只有字根提示（頭 60 字）",goal:8,rad:true,pool:[0,60]},
     {name:"冇提示（頭 120 字，15 秒）",goal:10,pool:[0,120],t:15},
     {name:"限時 8 秒（200 字）",goal:12,pool:[0,200],t:8}],
