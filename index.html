@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="zh-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>網頁速成班</title>
+<style>
+:root{
+  --bg:#fff8ee; --card:#ffffff; --ink:#2b2b3a; --muted:#6f6f85;
+  --pri:#ff6b6b; --pri2:#ffa94d; --ok:#2fbf71; --bad:#e8505b; --line:#f0e3cf;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#1c1b26; --card:#262535; --ink:#f3f1fa; --muted:#a6a3bd; --line:#3a384f}
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"PingFang HK","Microsoft JhengHei",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+header{background:linear-gradient(120deg,var(--pri),var(--pri2));color:#fff;padding:28px 16px 22px;text-align:center}
+header h1{margin:0;font-size:clamp(1.6rem,5vw,2.4rem)}
+header p{margin:6px 0 0;opacity:.95}
+.stats{max-width:960px;margin:-16px auto 0;padding:0 16px}
+.statbox{background:var(--card);border-radius:16px;padding:12px 16px;box-shadow:0 6px 20px #0002;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.bar{flex:1;min-width:140px;height:12px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ok),#7be0a6);transition:width .5s}
+.pill{font-weight:700;white-space:nowrap}
+main{max-width:960px;margin:16px auto 60px;padding:0 16px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav button{border:2px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:99px;cursor:pointer;font:inherit;transition:transform .15s}
+nav button:hover{transform:translateY(-2px)}
+nav button.on{border-color:var(--pri);background:var(--pri);color:#fff}
+nav button.done::after{content:" ✅"}
+.card{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 4px 14px #0001;margin-bottom:16px}
+.card h2{margin:0 0 6px}
+.tip{background:#fff3bf;color:#5c4a00;border-radius:12px;padding:10px 14px;margin:12px 0}
+code{background:var(--line);padding:1px 6px;border-radius:6px}
+.lab{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.lab{grid-template-columns:1fr}}
+textarea{width:100%;height:280px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;background:#1e1e2e;color:#e6e6f5;border:0;border-radius:12px;padding:12px;resize:vertical;tab-size:2}
+iframe{width:100%;height:280px;border:2px dashed var(--line);border-radius:12px;background:#fff}
+.goal{border-left:5px solid var(--pri);padding:6px 12px;margin:12px 0;background:var(--line);border-radius:0 10px 10px 0}
+.btn{border:0;background:var(--pri);color:#fff;padding:10px 18px;border-radius:12px;font:inherit;font-weight:700;cursor:pointer}
+.btn.alt{background:var(--muted)}
+.btn:hover{filter:brightness(1.08)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.msg{font-weight:700}
+.ok{color:var(--ok)} .bad{color:var(--bad)}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.opt:hover{border-color:var(--pri2)}
+.opt.right{border-color:var(--ok);background:#2fbf7122}
+.opt.wrong{border-color:var(--bad);background:#e8505b22}
+canvas{position:fixed;inset:0;pointer-events:none;z-index:99}
+footer{text-align:center;color:var(--muted);padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🚀 網頁速成班</h1>
+  <p>30 分鐘由零開始，學識 HTML · CSS · JavaScript，邊睇邊玩邊儲經驗值！</p>
+</header>
+<div class="stats"><div class="statbox">
+  <span class="pill" id="level">🥚 Lv.1 新手</span>
+  <div class="bar"><i id="bar"></i></div>
+  <span class="pill" id="xp">0 XP</span>
+</div></div>
+<main>
+  <nav id="nav"></nav>
+  <div id="lesson"></div>
+</main>
+<footer>改完代碼右邊即時見效 · 進度會儲喺你部機 💾</footer>
+<canvas id="fx"></canvas>
+
+<script>
+const LESSONS = [
+{
+  emoji:"🏗️", title:"HTML：砌骨架",
+  intro:`<p>HTML 就係網頁嘅<b>骨架</b>。用「標籤」話俾瀏覽器知呢段係咩：</p>
+  <ul><li><code>&lt;h1&gt;</code> 大標題</li><li><code>&lt;p&gt;</code> 段落</li><li><code>&lt;ul&gt;&lt;li&gt;</code> 清單</li><li><code>&lt;button&gt;</code> 按鈕</li></ul>
+  <div class="tip">💡 標籤通常要成對：<code>&lt;p&gt;內容&lt;/p&gt;</code></div>`,
+  goal:"加一個 <button>，再加一個有最少 2 項 <li> 嘅 <ul> 清單。",
+  code:`<h1>你好，世界！</h1>
+<p>我開始學做網頁喇</p>
+
+<!-- 喺下面加你嘅 button 同 ul 清單 -->
+`,
+  check:(d)=>d.querySelector("button") && d.querySelectorAll("ul li").length>=2,
+  hint:"試吓寫：<button>撳我</button> 同 <ul><li>蘋果</li><li>香蕉</li></ul>",
+  quiz:{q:"邊個標籤用嚟做「最大嘅標題」？",o:["<p>","<h1>","<li>"],a:1,why:"h1 係最大標題，h2、h3 逐級縮細。"}
+},
+{
+  emoji:"🎨", title:"CSS：化靚妝",
+  intro:`<p>CSS 負責<b>外觀</b>：顏色、大細、位置。格式係：</p>
+  <pre><code>選擇器 { 屬性: 值; }</code></pre>
+  <p>例如 <code>h1 { color: hotpink; }</code>。常用屬性：<code>color</code>、<code>background</code>、<code>text-align</code>、<code>font-size</code>、<code>border-radius</code>。</p>`,
+  goal:"令 body 有背景顏色（唔好白色），同埋令 h1 標題置中。",
+  code:`<style>
+  body { font-family: sans-serif; }
+  h1 { color: tomato; }
+  /* 喺度改啦：background 同 text-align */
+</style>
+<h1>我嘅靚頁面</h1>
+<p>等我整靚佢～</p>`,
+  check:(d)=>{const b=d.defaultView.getComputedStyle(d.body).backgroundColor;
+    const bg=b!=="rgba(0, 0, 0, 0)"&&b!=="rgb(255, 255, 255)";
+    const h=d.querySelector("h1");return bg&&h&&d.defaultView.getComputedStyle(h).textAlign==="center"},
+  hint:"body { background: lightyellow; } h1 { text-align: center; }",
+  quiz:{q:"想改文字顏色，用邊個屬性？",o:["color","font-paint","text-style"],a:0,why:"color 控制文字顏色；background 先係背景。"}
+},
+{
+  emoji:"🧠", title:"JavaScript：變數同迴圈",
+  intro:`<p>JavaScript 係網頁嘅<b>腦袋</b>。</p>
+  <ul><li><code>let name = "阿明";</code> 儲起一個值（變數）</li>
+  <li><code>for (let i=0; i&lt;5; i++) {...}</code> 重複做 5 次</li>
+  <li><code>el.textContent += "x"</code> 喺網頁加字</li></ul>`,
+  goal:"用 for 迴圈，喺 #out 入面顯示 5 粒 ⭐。",
+  code:`<h2>星星工廠</h2>
+<div id="out" style="font-size:2rem"></div>
+<script>
+  const out = document.getElementById("out");
+  let name = "阿明";
+  out.textContent = name + " 嘅星星：";
+  // 用 for 迴圈加 5 粒 ⭐ 落 out.textContent
+<\/script>`,
+  check:(d)=>((d.getElementById("out").textContent.match(/⭐/g))||[]).length>=5,
+  hint:'for (let i=0;i<5;i++){ out.textContent += "⭐"; }',
+  quiz:{q:"`let x = 3;` 嘅作用係？",o:["刪除 x","宣告變數 x 並放入 3","彈出視窗"],a:1,why:"let 用嚟宣告變數，= 用嚟賦值。"}
+},
+{
+  emoji:"👆", title:"事件：撳掣有反應",
+  intro:`<p>事件令網頁「識反應」。流程：<b>搵到元素 → 監聽事件 → 做嘢</b>。</p>
+  <pre><code>btn.addEventListener("click", () =&gt; { ... });</code></pre>`,
+  goal:"完成計數器：每撳一次掣，數字加 1。",
+  code:`<h2>撳掣計數器</h2>
+<p>你撳咗 <b id="count">0</b> 次</p>
+<button id="btn">撳我！</button>
+<script>
+  let n = 0;
+  const btn = document.getElementById("btn");
+  const count = document.getElementById("count");
+  btn.addEventListener("click", () => {
+    // 喺度寫：n 加 1，然後更新 count.textContent
+  });
+<\/script>`,
+  check:(d)=>{const c=d.getElementById("count"),b=d.getElementById("btn");
+    const s=c.textContent;b.click();b.click();return c.textContent!==s&&parseInt(c.textContent)>=2},
+  hint:"n++; count.textContent = n;",
+  quiz:{q:"`addEventListener(\"click\", ...)` 係幫手做乜？",o:["監聽撳掣動作","畫圖","儲存檔案"],a:0,why:"佢等用戶 click，一發生就行你寫嘅函數。"}
+},
+{
+  emoji:"🏆", title:"畢業作品：待辦清單",
+  intro:`<p>最後一關：將之前學嘅揉埋一齊，做個<b>待辦清單</b>！</p>
+  <p>用 <code>document.createElement("li")</code> 建立新項目，<code>list.appendChild(li)</code> 加入頁面。</p>`,
+  goal:"完成 add()：將輸入框內容變成清單一項，然後清空輸入框。",
+  code:`<h2>📝 我嘅待辦</h2>
+<input id="t" placeholder="今日要做乜？">
+<button id="add">加入</button>
+<ul id="list"></ul>
+<script>
+  const t = document.getElementById("t");
+  const list = document.getElementById("list");
+  function add() {
+    // 1. 建立 li  2. 設定文字  3. 加入 list  4. 清空輸入框
+  }
+  document.getElementById("add").addEventListener("click", add);
+<\/script>`,
+  check:(d)=>{const t=d.getElementById("t"),l=d.getElementById("list");
+    t.value="測試";d.getElementById("add").click();
+    return l.children.length>=1&&l.textContent.includes("測試")&&t.value===""},
+  hint:'const li=document.createElement("li"); li.textContent=t.value; list.appendChild(li); t.value="";',
+  quiz:{q:"想喺清單加新項目，用邊個方法？",o:["list.appendChild(li)","list.delete(li)","li.hide(list)"],a:0,why:"appendChild 將新元素加到父元素入面。"}
+}
+];
+
+const $=s=>document.querySelector(s);
+let state;
+try{state=JSON.parse(localStorage.getItem("crash-state")||"null")}catch(e){}
+state=state||{xp:0,cur:0,ch:{},qz:{}};
+const save=()=>{try{localStorage.setItem("crash-state",JSON.stringify(state))}catch(e){}};
+const LEVELS=[["🥚","新手"],["🐣","學徒"],["🐥","入門"],["🦅","高手"],["🐉","大師"]];
+
+function renderStats(){
+  const max=LESSONS.length*40;
+  const lv=Math.min(LEVELS.length-1,Math.floor(state.xp/(max/LEVELS.length+1)));
+  $("#level").textContent=`${LEVELS[lv][0]} Lv.${lv+1} ${LEVELS[lv][1]}`;
+  $("#xp").textContent=state.xp+" XP";
+  $("#bar").style.width=Math.min(100,state.xp/max*100)+"%";
+}
+function renderNav(){
+  $("#nav").innerHTML="";
+  LESSONS.forEach((l,i)=>{
+    const b=document.createElement("button");
+    b.textContent=`${l.emoji} ${i+1}. ${l.title.split("：")[0]}`;
+    b.className=(i===state.cur?"on ":"")+(state.ch[i]&&state.qz[i]?"done":"");
+    b.onclick=()=>{state.cur=i;save();render()};
+    $("#nav").appendChild(b);
+  });
+}
+function gain(n){state.xp+=n;save();renderStats()}
+
+function render(){
+  renderNav();renderStats();
+  const i=state.cur,L=LESSONS[i];
+  const el=$("#lesson");
+  el.innerHTML=`
+  <div class="card"><h2>${L.emoji} 第 ${i+1} 課：${L.title}</h2>${L.intro}</div>
+  <div class="card">
+    <h2>🛠️ 實戰區</h2>
+    <div class="goal">🎯 任務：${L.goal}</div>
+    <div class="lab"><textarea id="code" spellcheck="false"></textarea><iframe id="view" sandbox="allow-scripts allow-same-origin"></iframe></div>
+    <div class="row">
+      <button class="btn" id="chk">✅ 檢查答案</button>
+      <button class="btn alt" id="hnt">💡 提示</button>
+      <button class="btn alt" id="rst">↺ 重設</button>
+      <span class="msg" id="msg"></span>
+    </div>
+  </div>
+  <div class="card">
+    <h2>❓ 小測驗</h2><p>${L.quiz.q.replace(/</g,"&lt;")}</p><div id="opts"></div><div class="msg" id="qmsg"></div>
+  </div>
+  <div class="row">
+    <button class="btn alt" id="prev" ${i?"":"disabled"}>← 上一課</button>
+    <button class="btn" id="next">${i<LESSONS.length-1?"下一課 →":"🎓 完成"}</button>
+  </div>`;
+  const ta=$("#code"),fr=$("#view");
+  ta.value=L.code;
+  let timer;
+  const run=()=>{fr.srcdoc=`<!doctype html><meta charset="utf-8"><body style="font-family:sans-serif">${ta.value}`};
+  ta.addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(run,300)});
+  ta.addEventListener("keydown",e=>{if(e.key==="Tab"){e.preventDefault();const s=ta.selectionStart;ta.setRangeText("  ",s,ta.selectionEnd,"end")}});
+  run();
+  $("#rst").onclick=()=>{ta.value=L.code;run()};
+  $("#hnt").onclick=()=>{$("#msg").className="msg";$("#msg").textContent="💡 "+L.hint};
+  $("#chk").onclick=()=>{
+    // 用全新 iframe 檢查，避免之前嘅模擬點擊影響預覽
+    const t=document.createElement("iframe");t.style.display="none";
+    t.sandbox="allow-scripts allow-same-origin";
+    t.onload=()=>{
+      let ok=false;try{ok=!!L.check(t.contentDocument)}catch(e){}
+      t.remove();
+      const m=$("#msg");
+      if(ok){
+        m.className="msg ok";m.textContent="🎉 搞掂！+30 XP";
+        if(!state.ch[i]){state.ch[i]=1;gain(30);boom()}
+        renderNav();
+      }else{m.className="msg bad";m.textContent="仲未啱喎，再睇清楚任務～（可以撳提示）"}
+    };
+    t.srcdoc=`<!doctype html><meta charset="utf-8"><body>${ta.value}`;
+    document.body.appendChild(t);
+  };
+  const opts=$("#opts");
+  L.quiz.o.forEach((o,k)=>{
+    const b=document.createElement("button");b.className="opt";b.textContent=o;
+    b.onclick=()=>{
+      const right=k===L.quiz.a;
+      b.classList.add(right?"right":"wrong");
+      $("#qmsg").className="msg "+(right?"ok":"bad");
+      $("#qmsg").textContent=(right?"✔ 啱！":"✘ 唔啱，再試吓。")+(right?" "+L.quiz.why:"");
+      if(right&&!state.qz[i]){state.qz[i]=1;gain(10);boom();renderNav()}
+    };
+    opts.appendChild(b);
+  });
+  $("#prev").onclick=()=>{state.cur--;save();render();scrollTo(0,0)};
+  $("#next").onclick=()=>{
+    if(i<LESSONS.length-1){state.cur++;save();render();scrollTo(0,0)}
+    else{
+      const all=LESSONS.every((_,k)=>state.ch[k]&&state.qz[k]);
+      boom(200);
+      alert(all?"🎓 恭喜畢業！你已經識寫網頁喇！\n下一步：整個屬於你嘅網站吧～":"仲有關卡未完成，返去補返啦 💪");
+    }
+  };
+}
+
+// 簡單彩帶
+const cv=$("#fx"),cx=cv.getContext("2d");let ps=[];
+function boom(n=80){
+  cv.width=innerWidth;cv.height=innerHeight;
+  for(let k=0;k<n;k++)ps.push({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:Math.random()*-12-2,c:`hsl(${Math.random()*360},90%,60%)`,l:90});
+  if(ps.length===n)loop();
+}
+function loop(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  ps=ps.filter(p=>p.l>0);
+  ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.4;p.l--;cx.fillStyle=p.c;cx.fillRect(p.x,p.y,7,7)});
+  if(ps.length)requestAnimationFrame(loop);
+}
+render();
+</script>
+</body>
+</html>
